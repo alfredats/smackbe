@@ -1,0 +1,23 @@
+package visa.vttp.csf.smackBE.websocket;
+
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import static visa.vttp.csf.smackBE.websocket.RabbitMQConfig.queueName;
+
+public class Listener {
+
+  @RabbitListener(queues = "#{autoDeleteQueue1.name}")
+  public void receive(String in) throws InterruptedException {
+    System.out.println("instance " + queueName + " [x] Received '" + in + "'");
+    doWork(in);
+  }
+
+  @RabbitHandler
+  private void doWork(String in) throws InterruptedException {
+    for (char ch : in.toCharArray()) {
+      if (ch == '.') {
+        Thread.sleep(1000);
+      }
+    }
+  }
+}

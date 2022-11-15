@@ -1,0 +1,41 @@
+package visa.vttp.csf.smackBE.websocket;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.core.AnonymousQueue;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Queue;
+
+@Configuration()
+public class RabbitMQConfig {
+
+  static final String EXCHANGE_NAME = "smack";
+  static String queueName;
+
+  @Bean
+  FanoutExchange exchange() {
+    return new FanoutExchange(EXCHANGE_NAME, false, false);
+  }
+
+  @Bean
+  Binding binding(Queue autoDeleteQueue1, FanoutExchange exchange) {
+    return BindingBuilder.bind(autoDeleteQueue1).to(exchange);
+  }
+
+  private static class ReceiverConfig {
+    @Bean
+    public Queue autoDeleteQueue1() {
+      Queue q = new AnonymousQueue();
+      RabbitMQConfig.queueName = q.getActualName();
+      return q;
+    }
+
+    @Bean
+    public Listener listener() {
+      return new Listener();
+    }
+  }
+
+}
